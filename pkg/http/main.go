@@ -18,14 +18,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Gender string
-
-var Genders = struct {
-	Unspecified Gender
-	Male        Gender
-	Female      Gender
-}{"", "M", "F"}
-
 type AthleteMeta struct {
 	Id int64 `json:"id"`
 }
@@ -39,7 +31,7 @@ type AthleteSummary struct {
 	City             string    `json:"city"`
 	State            string    `json:"state"`
 	Country          string    `json:"country"`
-	Gender           Gender    `json:"sex"`
+	Gender           string    `json:"sex"`
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 
@@ -107,14 +99,17 @@ func main() {
         print(err)
     }
 		var result AuthorizationResponse
-		json.Unmarshal(body, &result)
+		if json.Unmarshal(body, &result) != nil {
+        print(err)
+    }
 		// fmt.Printf("%+v", result.Athlete)
 
 		session := sessions.Default(c)
 		session.Set("firstname", result.Athlete.FirstName)
 		session.Set("token", result.AccessToken)
-		session.Save()
-
+		if session.Save() != nil {
+        print(err)
+    }
 		/*v := session.Get("firstname")
 		if v == nil {
 			count = ""
@@ -184,5 +179,7 @@ func main() {
 	}
 
   // Start and run the server
-  router.Run(":3000")
+	if router.Run(":3000") != nil {
+     print(err)
+	}
 }
