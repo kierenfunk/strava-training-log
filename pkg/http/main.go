@@ -7,11 +7,15 @@ import (
   "fmt"
 	"net/url"
 	"time"
+	"os"
+	"log"
+	"strconv"
 
   "github.com/gin-gonic/contrib/static"
   "github.com/gin-gonic/gin"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
+	"github.com/joho/godotenv"
 )
 
 type Gender string
@@ -52,9 +56,25 @@ type AuthorizationResponse struct {
 	Athlete     AthleteDetailed `json:"athlete"`
 }
 
-func main() {
+type Credentials struct {
+	client_id				int
+	client_secret		string
+}
 
-	creds := Creds()
+func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	client_id,err :=strconv.Atoi(os.Getenv("CLIENT_ID"))
+	if err != nil {
+		log.Fatal("Error converting CLIENT_ID to integer")
+	}
+
+	creds := Credentials{
+		client_id:client_id,
+		client_secret:os.Getenv("CLIENT_SECRET")}
 
 	// Set the router as the default one shipped with Gin
 	router := gin.Default()
@@ -161,8 +181,6 @@ func main() {
         "message": "pong",
       })
     })
-
-
 	}
 
   // Start and run the server
